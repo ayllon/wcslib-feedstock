@@ -16,11 +16,23 @@ configure_args=(
     --with-cfitsioinc=$PREFIX/include
     --with-pgplotlib=$PREFIX/lib
     --with-pgplotinc=$PREFIX/include/pgplot
+    --host="${HOST}"
+    --build="${BUILD}"
 )
+
+if [[ "${CONDA_BUILD_CROSS_COMPILATION}" == "1" ]]; then
+    configure_args=(${configure_args[@]} "--without-pgplot")
+    autoreconf -if
+fi
+
+# Get an updated config.sub and config.guess
+cp $BUILD_PREFIX/share/libtool/build-aux/config.* config/
 
 ./configure "${configure_args[@]}" || { cat config.log ; exit 1 ; }
 make # note: Makefile is not parallel-safe
-make check
+if [[ "$CONDA_BUILD_CROSS_COMPILATION" != "1" ]]; then
+    make check
+fi
 mkdir -p $PREFIX/share/man/man1
 make install
 

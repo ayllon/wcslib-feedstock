@@ -9,7 +9,9 @@ source:
   url: ftp://ftp.atnf.csiro.au/pub/software/{{ name }}/{{ name }}-{{ version }}.tar.bz2
   sha256: 4b01cf425382a26ca4f955ed6841a5f50c55952a2994367f8e067e4183992961
   patches:
-    - no-x-tests.patch  # avoid deluges of pgplot warnings
+    - no-x-tests.patch    # avoid deluges of pgplot warnings
+    - remove-configure.ac.patch # [build_platform != target_platform]
+    - add-configure.ac.patch    # [build_platform != target_platform]
 
 build:
   number: 0
@@ -20,12 +22,15 @@ requirements:
     - {{ compiler('c') }}
     - {{ compiler('fortran') }}
     - flex
+    - automake  # [unix]
+    - autoconf  # [unix]
+    - libtool   # [unix]
   host:
     - cfitsio
-    - pgplot 5.2.*  # [not win]
+    - pgplot 5.2.*  # [not win and not osx]
   run:
     - cfitsio
-    - pgplot 5.2.*  # [not win]
+    - pgplot 5.2.*  # [not win and not osx]
 
 test:
   commands:
